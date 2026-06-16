@@ -1,0 +1,102 @@
+<div class="question" [class.review]="review">
+  <div class="prompt">
+    <span class="qnum">{{ index + 1 }}.</span>
+    <span class="qtext">{{ question.prompt }}</span>
+    <mat-icon
+      *ngIf="review"
+      class="result-icon"
+      [class.correct]="wasCorrect"
+      [class.wrong]="!wasCorrect"
+      >{{ wasCorrect ? 'check_circle' : 'cancel' }}</mat-icon
+    >
+  </div>
+
+  <!-- multiple-choice -->
+  <ng-container *ngIf="question.type === 'multiple-choice'">
+    <mat-radio-group
+      class="options"
+      [value]="singleChoiceValue"
+      (change)="onSingleChoice($event.value)"
+    >
+      <div
+        class="option-row"
+        *ngFor="let opt of question.options"
+        [class.opt-correct]="review && isOptionCorrect(opt.id)"
+        [class.opt-wrong]="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+      >
+        <mat-radio-button [value]="opt.id" [disabled]="review">
+          {{ opt.text }}
+        </mat-radio-button>
+        <span class="tag" *ngIf="review && isOptionCorrect(opt.id)">correct answer</span>
+        <span
+          class="tag chosen"
+          *ngIf="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+          >your answer</span
+        >
+      </div>
+    </mat-radio-group>
+  </ng-container>
+
+  <!-- multiple-select -->
+  <ng-container *ngIf="question.type === 'multiple-select'">
+    <div class="options">
+      <div
+        class="option-row"
+        *ngFor="let opt of question.options"
+        [class.opt-correct]="review && isOptionCorrect(opt.id)"
+        [class.opt-wrong]="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+      >
+        <mat-checkbox
+          [checked]="isChecked(opt.id)"
+          [disabled]="review"
+          (change)="onMultiToggle(opt.id, $event.checked)"
+        >
+          {{ opt.text }}
+        </mat-checkbox>
+        <span class="tag" *ngIf="review && isOptionCorrect(opt.id)">correct answer</span>
+        <span
+          class="tag chosen"
+          *ngIf="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+          >your answer</span
+        >
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- true-false -->
+  <ng-container *ngIf="question.type === 'true-false'">
+    <mat-radio-group
+      class="options"
+      [value]="booleanValue"
+      (change)="onBoolean($event.value)"
+    >
+      <div
+        class="option-row"
+        [class.opt-correct]="review && correctBooleanValue === true"
+        [class.opt-wrong]="review && booleanValue === true && correctBooleanValue !== true"
+      >
+        <mat-radio-button [value]="true" [disabled]="review">True</mat-radio-button>
+        <span class="tag" *ngIf="review && correctBooleanValue === true">correct answer</span>
+        <span class="tag chosen" *ngIf="review && booleanValue === true && correctBooleanValue !== true">your answer</span>
+      </div>
+      <div
+        class="option-row"
+        [class.opt-correct]="review && correctBooleanValue === false"
+        [class.opt-wrong]="review && booleanValue === false && correctBooleanValue !== false"
+      >
+        <mat-radio-button [value]="false" [disabled]="review">False</mat-radio-button>
+        <span class="tag" *ngIf="review && correctBooleanValue === false">correct answer</span>
+        <span class="tag chosen" *ngIf="review && booleanValue === false && correctBooleanValue !== false">your answer</span>
+      </div>
+    </mat-radio-group>
+  </ng-container>
+
+  <!-- explanation shown in review mode when the answer was wrong -->
+  <div
+    class="explanation"
+    *ngIf="review && !wasCorrect && question.explanation"
+  >
+    <mat-icon>lightbulb</mat-icon>
+    <div><strong>Explanation:</strong> {{ question.explanation }}</div>
+  </div>
+</div>

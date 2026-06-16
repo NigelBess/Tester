@@ -1,0 +1,73 @@
+<div class="home">
+  <header class="hero">
+    <div>
+      <h1>Your Tests</h1>
+      <p class="subtitle">Upload a JSON test file, then take it and track your progress.</p>
+    </div>
+    <div>
+      <input
+        #fileInput
+        type="file"
+        accept="application/json,.json"
+        hidden
+        (change)="onFileSelected($event)"
+      />
+      <button mat-raised-button color="primary" (click)="fileInput.click()">
+        <mat-icon>upload_file</mat-icon> Upload test JSON
+      </button>
+    </div>
+  </header>
+
+  <div class="empty" *ngIf="rows.length === 0">
+    <mat-icon>quiz</mat-icon>
+    <p>No tests yet. Upload a JSON test file to get started.</p>
+  </div>
+
+  <div class="grid">
+    <mat-card class="test-card" *ngFor="let row of rows">
+      <mat-card-header>
+        <mat-card-title>{{ row.test.title }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ row.questionCount }} question{{ row.questionCount === 1 ? '' : 's' }}
+          <span *ngIf="row.attempts > 0">· {{ row.attempts }} attempt{{ row.attempts === 1 ? '' : 's' }}</span>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="desc" *ngIf="row.test.description">{{ row.test.description }}</p>
+
+        <div class="stats" *ngIf="row.attempts > 0">
+          <div class="stat" *ngIf="row.mostMissed">
+            <mat-icon class="bad">trending_down</mat-icon>
+            <div>
+              <div class="stat-label">Most missed</div>
+              <div class="stat-q">{{ row.mostMissed.prompt }}</div>
+              <div class="stat-num">
+                wrong {{ row.mostMissed.wrong }} / {{ row.mostMissed.total }}
+              </div>
+            </div>
+          </div>
+          <div class="stat" *ngIf="row.mostCorrect">
+            <mat-icon class="good">trending_up</mat-icon>
+            <div>
+              <div class="stat-label">Most correct</div>
+              <div class="stat-q">{{ row.mostCorrect.prompt }}</div>
+              <div class="stat-num">
+                right {{ row.mostCorrect.correct }} / {{ row.mostCorrect.total }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <a mat-raised-button color="primary" [routerLink]="['/test', row.test.id]">
+          <mat-icon>play_arrow</mat-icon> Take test
+        </a>
+        <button mat-button color="warn" (click)="deleteTest(row)">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+.runner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+
+.topbar {
+  margin-bottom: 8px;
+}
+
+h1 {
+  margin: 8px 0 4px;
+}
+
+.desc {
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 0;
+}
+
+.progress-text {
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+
+.qcard {
+  margin-bottom: 16px;
+
+  &.card-correct {
+    border-left: 4px solid #2e7d32;
+  }
+  &.card-wrong {
+    border-left: 4px solid #c62828;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+
+  .hint {
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.9rem;
+  }
+}
+
+.score-card {
+  text-align: center;
+  padding: 24px;
+
+  &.perfect {
+    background: #e8f5e9;
+  }
+
+  .score-num {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #3f51b5;
+  }
+  .score-detail {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  .celebrate {
+    margin-top: 8px;
+    color: #2e7d32;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+}
+
+h2 {
+  margin-top: 28px;
+}

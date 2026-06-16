@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "title": "Networking Fundamentals",
+  "description": "A short sample test covering all three question types.",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "prompt": "Which OSI layer does TCP operate at?",
+      "options": [
+        { "id": "a", "text": "Application (Layer 7)" },
+        { "id": "b", "text": "Transport (Layer 4)" },
+        { "id": "c", "text": "Network (Layer 3)" },
+        { "id": "d", "text": "Data Link (Layer 2)" }
+      ],
+      "correct": ["b"],
+      "explanation": "TCP is a Transport-layer protocol; it provides reliable, ordered delivery on top of IP."
+    },
+    {
+      "id": "q2",
+      "type": "multiple-select",
+      "prompt": "Select all of the private IPv4 address ranges.",
+      "options": [
+        { "id": "a", "text": "10.0.0.0/8" },
+        { "id": "b", "text": "8.8.8.0/24" },
+        { "id": "c", "text": "172.16.0.0/12" },
+        { "id": "d", "text": "192.168.0.0/16" }
+      ],
+      "correct": ["a", "c", "d"],
+      "explanation": "RFC 1918 defines 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 as private. 8.8.8.0/24 is public (Google DNS)."
+    },
+    {
+      "id": "q3",
+      "type": "true-false",
+      "prompt": "UDP guarantees reliable, ordered delivery of packets.",
+      "correct": false,
+      "explanation": "UDP is connectionless and best-effort: it does not guarantee delivery or ordering. That is TCP's job."
+    },
+    {
+      "id": "q4",
+      "type": "multiple-choice",
+      "prompt": "What port does HTTPS use by default?",
+      "options": [
+        { "id": "a", "text": "80" },
+        { "id": "b", "text": "443" },
+        { "id": "c", "text": "8080" },
+        { "id": "d", "text": "22" }
+      ],
+      "correct": ["b"]
+    }
+  ]
+}

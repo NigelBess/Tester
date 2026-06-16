@@ -1,0 +1,89 @@
+<div class="runner" *ngIf="!notFound; else missing">
+  <div class="topbar">
+    <button mat-button (click)="goHome()">
+      <mat-icon>arrow_back</mat-icon> Your tests
+    </button>
+  </div>
+
+  <h1>{{ test?.title }}</h1>
+  <p class="desc" *ngIf="test?.description">{{ test?.description }}</p>
+
+  <!-- TAKING -->
+  <ng-container *ngIf="phase === 'taking'">
+    <p class="progress-text">
+      Answered {{ answeredCount }} / {{ activeQuestions.length }}
+    </p>
+
+    <mat-card class="qcard" *ngFor="let q of activeQuestions; let i = index">
+      <app-question
+        [question]="q"
+        [index]="i"
+        [answer]="answers[q.id]"
+        (answerChange)="setAnswer(q.id, $event)"
+      ></app-question>
+    </mat-card>
+
+    <div class="actions">
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!allAnswered"
+        (click)="submit()"
+      >
+        Submit test
+      </button>
+      <span class="hint" *ngIf="!allAnswered">Answer all questions to submit.</span>
+    </div>
+  </ng-container>
+
+  <!-- RESULTS -->
+  <ng-container *ngIf="phase === 'results' && result">
+    <mat-card class="score-card" [class.perfect]="result.percent === 100">
+      <div class="score-num">{{ result.percent }}%</div>
+      <div class="score-detail">
+        {{ result.scoreCorrect }} / {{ result.scoreTotal }} correct
+      </div>
+      <div class="celebrate" *ngIf="result.percent === 100">
+        <mat-icon>emoji_events</mat-icon> Perfect score!
+      </div>
+    </mat-card>
+
+    <div class="actions" *ngIf="result.percent < 100">
+      <button mat-raised-button color="primary" (click)="retakeWrong()">
+        Retake incorrect only
+      </button>
+      <button mat-stroked-button (click)="retakeFull()">Retake full test</button>
+    </div>
+    <div class="actions" *ngIf="result.percent === 100">
+      <button mat-raised-button color="primary" (click)="retakeFull()">
+        Take again
+      </button>
+      <button mat-stroked-button (click)="goHome()">Back to tests</button>
+    </div>
+
+    <h2>Review</h2>
+    <mat-card
+      class="qcard"
+      *ngFor="let r of result.results; let i = index"
+      [class.card-correct]="r.correct"
+      [class.card-wrong]="!r.correct"
+    >
+      <app-question
+        [question]="r.question"
+        [index]="i"
+        [answer]="r.answer"
+        [review]="true"
+        [wasCorrect]="r.correct"
+      ></app-question>
+    </mat-card>
+  </ng-container>
+</div>
+
+<ng-template #missing>
+  <div class="runner">
+    <p>Test not found.</p>
+    <button mat-raised-button color="primary" (click)="goHome()">
+      Back to tests
+    </button>
+  </div>
+</ng-template>
