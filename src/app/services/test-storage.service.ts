@@ -8,6 +8,13 @@ import {
   TestStats,
 } from '../models/test.model';
 
+/** A non-empty image reference is required when the field is present. */
+function validateImageField(value: unknown, where: string): void {
+  if (value !== undefined && (typeof value !== 'string' || !value.trim())) {
+    throw new Error(`${where}: "image" must be a non-empty string when present.`);
+  }
+}
+
 const TESTS_KEY = 'tester.tests';
 const STATS_KEY = 'tester.stats';
 
@@ -153,6 +160,8 @@ export class TestStorageService {
       throw new Error(`${where}: "explanation" must be a string when present.`);
     }
 
+    validateImageField(q['image'], where);
+
     if (type === 'true-false') {
       if (typeof q['correct'] !== 'boolean') {
         throw new Error(`${where}: true-false "correct" must be a boolean.`);
@@ -180,6 +189,7 @@ export class TestStorageService {
       if (typeof o['text'] !== 'string') {
         throw new Error(`${where}, option ${j + 1}: missing string "text".`);
       }
+      validateImageField(o['image'], `${where}, option ${j + 1}`);
     });
 
     if (
@@ -202,6 +212,26 @@ export class TestStorageService {
         throw new Error(`${where}: correct id "${c}" is not a defined option.`);
       }
     });
+  }
+
+  // --- Images ---
+
+  /** Unique set of image names referenced by a test's questions and options. */
+  referencedImageNames(test: TestFile): string[] {
+    const names = new Set<string>();
+    for (const q of test.questions) {
+      if (q.image) {
+        names.add(q.image);
+      }
+      if (q.type !== 'true-false') {
+        for (const opt of q.options) {
+          if (opt.image) {
+            names.add(opt.image);
+          }
+        }
+      }
+    }
+    return Array.from(names);
   }
 
   // --- Scoring helper (shared by the runner) ---

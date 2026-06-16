@@ -52,6 +52,27 @@
   }
 }
 
+.images {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+
+  mat-icon.good {
+    color: #2e7d32;
+  }
+  mat-icon.bad {
+    color: #ef6c00;
+  }
+
+  button {
+    margin-left: auto;
+  }
+}
+
 .stats {
   display: flex;
   flex-direction: column;

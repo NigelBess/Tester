@@ -19,6 +19,7 @@
         [question]="q"
         [index]="i"
         [answer]="answers[q.id]"
+        [imageUrls]="imageUrls"
         (answerChange)="setAnswer(q.id, $event)"
       ></app-question>
     </mat-card>
@@ -72,6 +73,7 @@
         [question]="r.question"
         [index]="i"
         [answer]="r.answer"
+        [imageUrls]="imageUrls"
         [review]="true"
         [wasCorrect]="r.correct"
       ></app-question>

@@ -7,12 +7,16 @@ export type QuestionType = 'multiple-choice' | 'multiple-select' | 'true-false';
 export interface TestOption {
   id: string;
   text: string;
+  /** Optional image reference (basename of a user-uploaded file, e.g. "wave-a.png"). */
+  image?: string;
 }
 
 export interface ChoiceQuestion {
   id: string;
   type: 'multiple-choice' | 'multiple-select';
   prompt: string;
+  /** Optional image reference (basename of a user-uploaded file). */
+  image?: string;
   options: TestOption[];
   /** Array of correct option ids. Exactly one for multiple-choice. */
   correct: string[];
@@ -23,6 +27,8 @@ export interface BooleanQuestion {
   id: string;
   type: 'true-false';
   prompt: string;
+  /** Optional image reference (basename of a user-uploaded file). */
+  image?: string;
   correct: boolean;
   explanation?: string;
 }

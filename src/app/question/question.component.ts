@@ -19,6 +19,14 @@ export class QuestionComponent {
   /** Whether the answer was correct (only meaningful in review mode). */
   @Input() wasCorrect = false;
 
+  /** Resolved image-name -> objectUrl map for this test. */
+  @Input() imageUrls: Map<string, string> = new Map();
+
+  /** Object URL for an image name, or undefined if not uploaded yet. */
+  imageUrl(name: string | undefined): string | undefined {
+    return name ? this.imageUrls.get(name) : undefined;
+  }
+
   // --- Single answer (multiple-choice + true-false) helpers ---
 
   get singleChoiceValue(): string | null {

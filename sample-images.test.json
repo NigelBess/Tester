@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "title": "Shapes & Colors (image demo)",
+  "description": "A small test that references images. Upload fig-shape.png, opt-red.png, and opt-blue.png on the test card.",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "prompt": "What shape is shown in the image?",
+      "image": "fig-shape.png",
+      "options": [
+        { "id": "a", "text": "Circle" },
+        { "id": "b", "text": "Square" },
+        { "id": "c", "text": "Triangle" }
+      ],
+      "correct": ["b"],
+      "explanation": "The figure is a square — four equal sides and right angles."
+    },
+    {
+      "id": "q2",
+      "type": "multiple-choice",
+      "prompt": "Which swatch is the color red?",
+      "options": [
+        { "id": "a", "text": "This one", "image": "opt-red.png" },
+        { "id": "b", "text": "This one", "image": "opt-blue.png" }
+      ],
+      "correct": ["a"],
+      "explanation": "Option A is the red swatch."
+    },
+    {
+      "id": "q3",
+      "type": "true-false",
+      "prompt": "This test references images that you must upload separately.",
+      "correct": true,
+      "explanation": "Images are uploaded per-test via the Upload images button and matched by filename."
+    }
+  ]
+}

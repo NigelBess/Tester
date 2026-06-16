@@ -1,3 +1,14 @@
+<!-- Reusable image / "not uploaded" placeholder for an image name. -->
+<ng-template #imgBlock let-name="name" let-cls="cls">
+  <ng-container *ngIf="name">
+    <img *ngIf="imageUrl(name) as url" [src]="url" [alt]="name" [class]="cls" />
+    <div *ngIf="!imageUrl(name)" class="img-missing" [class]="cls">
+      <mat-icon>broken_image</mat-icon>
+      <span>image not uploaded: {{ name }}</span>
+    </div>
+  </ng-container>
+</ng-template>
+
 <div class="question" [class.review]="review">
   <div class="prompt">
     <span class="qnum">{{ index + 1 }}.</span>
@@ -10,6 +21,10 @@
       >{{ wasCorrect ? 'check_circle' : 'cancel' }}</mat-icon
     >
   </div>
+
+  <ng-container
+    *ngTemplateOutlet="imgBlock; context: { name: question.image, cls: 'q-img' }"
+  ></ng-container>
 
   <!-- multiple-choice -->
   <ng-container *ngIf="question.type === 'multiple-choice'">
@@ -27,6 +42,9 @@
         <mat-radio-button [value]="opt.id" [disabled]="review">
           {{ opt.text }}
         </mat-radio-button>
+        <ng-container
+          *ngTemplateOutlet="imgBlock; context: { name: opt.image, cls: 'opt-img' }"
+        ></ng-container>
         <span class="tag" *ngIf="review && isOptionCorrect(opt.id)">correct answer</span>
         <span
           class="tag chosen"
@@ -53,6 +71,9 @@
         >
           {{ opt.text }}
         </mat-checkbox>
+        <ng-container
+          *ngTemplateOutlet="imgBlock; context: { name: opt.image, cls: 'opt-img' }"
+        ></ng-container>
         <span class="tag" *ngIf="review && isOptionCorrect(opt.id)">correct answer</span>
         <span
           class="tag chosen"

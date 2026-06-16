@@ -8,6 +8,7 @@ import {
   StoredTest,
 } from '../models/test.model';
 import { TestStorageService } from '../services/test-storage.service';
+import { ImageStoreService } from '../services/image-store.service';
 
 @Component({
   selector: 'app-test-runner',
@@ -26,10 +27,14 @@ export class TestRunnerComponent implements OnInit {
 
   result?: AttemptResult;
 
+  /** Resolved image-name -> objectUrl map for the loaded test. */
+  imageUrls = new Map<string, string>();
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private storage: TestStorageService
+    private storage: TestStorageService,
+    private images: ImageStoreService
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +43,12 @@ export class TestRunnerComponent implements OnInit {
     if (!this.test) {
       this.notFound = true;
       return;
+    }
+    const names = this.storage.referencedImageNames(this.test);
+    if (names.length) {
+      this.images
+        .resolveUrls(this.test.id, names)
+        .then((map) => (this.imageUrls = map));
     }
     this.startAttempt(this.test.questions);
   }

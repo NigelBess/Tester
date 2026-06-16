@@ -36,6 +36,28 @@
       <mat-card-content>
         <p class="desc" *ngIf="row.test.description">{{ row.test.description }}</p>
 
+        <div class="images" *ngIf="row.imageNames.length > 0">
+          <mat-icon
+            [class.good]="row.imagesUploaded === row.imageNames.length"
+            [class.bad]="row.imagesUploaded < row.imageNames.length"
+            >image</mat-icon
+          >
+          <span>
+            images: {{ row.imagesUploaded }} / {{ row.imageNames.length }} uploaded
+          </span>
+          <input
+            #imgInput
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            (change)="onImagesSelected($event, row)"
+          />
+          <button mat-stroked-button (click)="imgInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon> Upload images
+          </button>
+        </div>
+
         <div class="stats" *ngIf="row.attempts > 0">
           <div class="stat" *ngIf="row.mostMissed">
             <mat-icon class="bad">trending_down</mat-icon>
