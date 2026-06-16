@@ -86,6 +86,9 @@
         <a mat-raised-button color="primary" [routerLink]="['/test', row.test.id]">
           <mat-icon>play_arrow</mat-icon> Take test
         </a>
+        <a mat-stroked-button color="primary" [routerLink]="['/test', row.test.id, 'practice']">
+          <mat-icon>all_inclusive</mat-icon> Practice
+        </a>
         <button mat-button color="warn" (click)="deleteTest(row)">
           <mat-icon>delete</mat-icon> Delete
         </button>

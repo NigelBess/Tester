@@ -5,6 +5,7 @@ import {
   QuestionType,
   StoredTest,
   TestFile,
+  TestHistory,
   TestStats,
 } from '../models/test.model';
 
@@ -17,6 +18,10 @@ function validateImageField(value: unknown, where: string): void {
 
 const TESTS_KEY = 'tester.tests';
 const STATS_KEY = 'tester.stats';
+const HISTORY_KEY = 'tester.history';
+
+/** How many recent outcomes per question the rolling history keeps. */
+const HISTORY_WINDOW = 6;
 
 const VALID_TYPES: QuestionType[] = [
   'multiple-choice',
@@ -63,6 +68,9 @@ export class TestStorageService {
     const allStats = this.readJson<Record<string, TestStats>>(STATS_KEY, {});
     delete allStats[id];
     this.writeJson(STATS_KEY, allStats);
+    const allHistory = this.readJson<Record<string, TestHistory>>(HISTORY_KEY, {});
+    delete allHistory[id];
+    this.writeJson(HISTORY_KEY, allHistory);
   }
 
   // --- Stats ---
@@ -90,6 +98,33 @@ export class TestStorageService {
     }
     allStats[testId] = testStats;
     this.writeJson(STATS_KEY, allStats);
+    // Also append to the rolling per-question history (both test-taking modes
+    // feed this through the single recordResult entry point).
+    this.recordHistory(testId, outcomes);
+  }
+
+  // --- Rolling history (recent outcomes per question) ---
+
+  /** Map of questionId -> recent outcomes (most recent last), for one test. */
+  getHistory(testId: string): TestHistory {
+    const allHistory = this.readJson<Record<string, TestHistory>>(HISTORY_KEY, {});
+    return allHistory[testId] ?? {};
+  }
+
+  /**
+   * Append each outcome to its question's rolling window, trimming to the last
+   * HISTORY_WINDOW entries. `outcomes` maps questionId -> wasCorrect.
+   */
+  recordHistory(testId: string, outcomes: Record<string, boolean>): void {
+    const allHistory = this.readJson<Record<string, TestHistory>>(HISTORY_KEY, {});
+    const testHistory: TestHistory = allHistory[testId] ?? {};
+    for (const [questionId, wasCorrect] of Object.entries(outcomes)) {
+      const recent = testHistory[questionId] ?? [];
+      recent.push(wasCorrect);
+      testHistory[questionId] = recent.slice(-HISTORY_WINDOW);
+    }
+    allHistory[testId] = testHistory;
+    this.writeJson(HISTORY_KEY, allHistory);
   }
 
   // --- Validation ---
@@ -116,6 +151,9 @@ export class TestStorageService {
     }
     if (!Array.isArray(obj['questions']) || obj['questions'].length === 0) {
       throw new Error('Test must have a non-empty "questions" array.');
+    }
+    if (obj['shuffle'] !== undefined && typeof obj['shuffle'] !== 'boolean') {
+      throw new Error('"shuffle" must be a boolean when present.');
     }
 
     const seenIds = new Set<string>();

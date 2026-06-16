@@ -15,6 +15,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { TestRunnerComponent } from './test-runner/test-runner.component';
+import { PracticeRunnerComponent } from './practice-runner/practice-runner.component';
 import { QuestionComponent } from './question/question.component';
 
 @NgModule({
@@ -22,6 +23,7 @@ import { QuestionComponent } from './question/question.component';
     AppComponent,
     HomeComponent,
     TestRunnerComponent,
+    PracticeRunnerComponent,
     QuestionComponent,
   ],
   imports: [

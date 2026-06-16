@@ -9,6 +9,7 @@ import {
 } from '../models/test.model';
 import { TestStorageService } from '../services/test-storage.service';
 import { ImageStoreService } from '../services/image-store.service';
+import { prepareQuestion, shuffled } from '../shared/shuffle';
 
 @Component({
   selector: 'app-test-runner',
@@ -54,9 +55,16 @@ export class TestRunnerComponent implements OnInit {
   }
 
   private startAttempt(questions: Question[]): void {
-    this.activeQuestions = questions;
+    // Shuffle (unless the test opts out with "shuffle": false). We shuffle on
+    // copies so the stored test is never mutated; option order is randomised on
+    // a copied options array, leaving option ids — which scoring relies on —
+    // untouched. Each attempt (including retakes) re-shuffles.
+    const shuffle = this.test?.shuffle !== false;
+    const prepared = questions.map((q) => prepareQuestion(q, shuffle));
+    this.activeQuestions = shuffle ? shuffled(prepared) : prepared;
+
     this.answers = {};
-    for (const q of questions) {
+    for (const q of this.activeQuestions) {
       this.answers[q.id] = q.type === 'true-false' ? null : [];
     }
     this.result = undefined;

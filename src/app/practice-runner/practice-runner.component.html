@@ -1,0 +1,77 @@
+<div class="runner" *ngIf="!notFound; else missing">
+  <div class="topbar">
+    <button mat-button (click)="goHome()">
+      <mat-icon>arrow_back</mat-icon> Exit practice
+    </button>
+    <span class="tally" *ngIf="answered > 0">
+      {{ answered }} answered · {{ sessionPercent }}% this session
+    </span>
+  </div>
+
+  <h1>{{ test?.title }} <span class="mode-tag">Practice</span></h1>
+  <p class="desc">One question at a time, weighted toward what you miss most. Keep going as long as you like.</p>
+
+  <ng-container *ngIf="current">
+    <!-- ANSWERING -->
+    <ng-container *ngIf="phase === 'answering'">
+      <mat-card class="qcard">
+        <app-question
+          [question]="current"
+          [answer]="answer"
+          [imageUrls]="imageUrls"
+          (answerChange)="setAnswer($event)"
+        ></app-question>
+      </mat-card>
+
+      <div class="actions">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!isAnswered"
+          (click)="check()"
+        >
+          Check answer
+        </button>
+        <span class="hint" *ngIf="!isAnswered">Pick an answer to check it.</span>
+      </div>
+    </ng-container>
+
+    <!-- FEEDBACK -->
+    <ng-container *ngIf="phase === 'feedback'">
+      <div class="banner" [class.ok]="lastCorrect" [class.bad]="!lastCorrect">
+        <mat-icon>{{ lastCorrect ? 'check_circle' : 'cancel' }}</mat-icon>
+        {{ lastCorrect ? 'Correct!' : 'Not quite.' }}
+      </div>
+
+      <mat-card
+        class="qcard"
+        [class.card-correct]="lastCorrect"
+        [class.card-wrong]="!lastCorrect"
+      >
+        <app-question
+          [question]="current"
+          [answer]="answer"
+          [imageUrls]="imageUrls"
+          [review]="true"
+          [wasCorrect]="lastCorrect"
+        ></app-question>
+      </mat-card>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="nextQuestion()">
+          Next question <mat-icon>arrow_forward</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="goHome()">Exit</button>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
+
+<ng-template #missing>
+  <div class="runner">
+    <p>Test not found.</p>
+    <button mat-raised-button color="primary" (click)="goHome()">
+      Back to tests
+    </button>
+  </div>
+</ng-template>

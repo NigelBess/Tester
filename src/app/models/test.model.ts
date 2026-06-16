@@ -40,6 +40,8 @@ export interface TestFile {
   version: number;
   title: string;
   description?: string;
+  /** Shuffle question + option order each attempt. Defaults to true when omitted. */
+  shuffle?: boolean;
   questions: Question[];
 }
 
@@ -77,3 +79,10 @@ export interface QuestionStat {
 
 /** Map of questionId -> cumulative stats, keyed per test. */
 export type TestStats = Record<string, QuestionStat>;
+
+/**
+ * Map of questionId -> recent answer outcomes (true = correct), most recent
+ * last, capped to a small rolling window. Keyed per test. Powers practice-mode
+ * weighting ("the last 6 times you answered this question").
+ */
+export type TestHistory = Record<string, boolean[]>;

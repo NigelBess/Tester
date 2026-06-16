@@ -70,6 +70,7 @@ app, which matches them to questions by filename.
 | `version` | Always the number `1`. |
 | `title` | Non-empty string. Derive from the source headings/topic. |
 | `description` | Optional string. Omit if there is nothing useful to say. |
+| `shuffle` | **Optional** boolean. The app shuffles question order and multiple-choice option order on every attempt; defaults to `true`. Set `false` only if order is meaningful (e.g. a sequenced walkthrough). |
 | `questions` | Non-empty array; merged from all input files. |
 | `question.id` | Unique string **across all merged files**. Use `q1`, `q2`, … |
 | `question.type` | One of `"multiple-choice"`, `"multiple-select"`, `"true-false"`. |
