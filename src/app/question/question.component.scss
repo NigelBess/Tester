@@ -78,10 +78,30 @@
   &.opt-correct {
     background: #e8f5e9;
     border-color: #a5d6a7;
+
+    ::ng-deep .mdc-radio {
+      .mdc-radio__outer-circle,
+      .mdc-radio__inner-circle {
+        border-color: #2e7d32 !important;
+      }
+      .mdc-radio__background::before {
+        background-color: #2e7d32 !important;
+      }
+    }
   }
   &.opt-wrong {
     background: #ffebee;
     border-color: #ef9a9a;
+
+    ::ng-deep .mdc-radio {
+      .mdc-radio__outer-circle,
+      .mdc-radio__inner-circle {
+        border-color: #c62828 !important;
+      }
+      .mdc-radio__background::before {
+        background-color: #c62828 !important;
+      }
+    }
   }
 }
 
