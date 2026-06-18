@@ -75,6 +75,16 @@
   border-radius: 6px;
   border: 1px solid transparent;
 
+  ::ng-deep .mdc-radio {
+    .mdc-radio__outer-circle,
+    .mdc-radio__inner-circle {
+      border-color: #1565c0 !important;
+    }
+    .mdc-radio__background::before {
+      background-color: #1565c0 !important;
+    }
+  }
+
   &.opt-correct {
     background: #e8f5e9;
     border-color: #a5d6a7;
