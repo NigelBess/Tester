@@ -14,7 +14,7 @@
     <span class="qnum">{{ index + 1 }}.</span>
     <span class="qtext">{{ question.prompt }}</span>
     <mat-icon
-      *ngIf="review"
+      *ngIf="review || showLive"
       class="result-icon"
       [class.correct]="wasCorrect"
       [class.wrong]="!wasCorrect"
@@ -36,8 +36,8 @@
       <div
         class="option-row"
         *ngFor="let opt of question.options"
-        [class.opt-correct]="review && isOptionCorrect(opt.id)"
-        [class.opt-wrong]="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+        [class.opt-correct]="(review && isOptionCorrect(opt.id)) || (showLive && isOptionChosen(opt.id) && wasCorrect)"
+        [class.opt-wrong]="(review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)) || (showLive && isOptionChosen(opt.id) && !wasCorrect)"
       >
         <mat-radio-button [value]="opt.id" [disabled]="review">
           {{ opt.text }}
@@ -61,8 +61,8 @@
       <div
         class="option-row"
         *ngFor="let opt of question.options"
-        [class.opt-correct]="review && isOptionCorrect(opt.id)"
-        [class.opt-wrong]="review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)"
+        [class.opt-correct]="(review && isOptionCorrect(opt.id)) || (showLive && isOptionChosen(opt.id) && wasCorrect)"
+        [class.opt-wrong]="(review && isOptionChosen(opt.id) && !isOptionCorrect(opt.id)) || (showLive && isOptionChosen(opt.id) && !wasCorrect)"
       >
         <mat-checkbox
           [checked]="isChecked(opt.id)"
@@ -93,8 +93,8 @@
     >
       <div
         class="option-row"
-        [class.opt-correct]="review && correctBooleanValue === true"
-        [class.opt-wrong]="review && booleanValue === true && correctBooleanValue !== true"
+        [class.opt-correct]="(review && correctBooleanValue === true) || (showLive && booleanValue === true && wasCorrect)"
+        [class.opt-wrong]="(review && booleanValue === true && correctBooleanValue !== true) || (showLive && booleanValue === true && !wasCorrect)"
       >
         <mat-radio-button [value]="true" [disabled]="review">True</mat-radio-button>
         <span class="tag" *ngIf="review && correctBooleanValue === true">correct answer</span>
@@ -102,8 +102,8 @@
       </div>
       <div
         class="option-row"
-        [class.opt-correct]="review && correctBooleanValue === false"
-        [class.opt-wrong]="review && booleanValue === false && correctBooleanValue !== false"
+        [class.opt-correct]="(review && correctBooleanValue === false) || (showLive && booleanValue === false && wasCorrect)"
+        [class.opt-wrong]="(review && booleanValue === false && correctBooleanValue !== false) || (showLive && booleanValue === false && !wasCorrect)"
       >
         <mat-radio-button [value]="false" [disabled]="review">False</mat-radio-button>
         <span class="tag" *ngIf="review && correctBooleanValue === false">correct answer</span>
@@ -112,10 +112,10 @@
     </mat-radio-group>
   </ng-container>
 
-  <!-- explanation shown in review mode when the answer was wrong -->
+  <!-- explanation shown when the answer was wrong (review or live feedback) -->
   <div
     class="explanation"
-    *ngIf="review && !wasCorrect && question.explanation"
+    *ngIf="(review || showLive) && !wasCorrect && question.explanation"
   >
     <mat-icon>lightbulb</mat-icon>
     <div><strong>Explanation:</strong> {{ question.explanation }}</div>

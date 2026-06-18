@@ -36,6 +36,9 @@ export class TestRunnerComponent implements OnInit {
   /** When the current attempt was last auto-saved (drives the "Saved" indicator). */
   lastSaved?: number;
 
+  /** When on, each answer is graded live as it's picked (without revealing the answer). */
+  instantFeedback = false;
+
   /** Resolved image-name -> objectUrl map for the loaded test. */
   imageUrls = new Map<string, string>();
 
@@ -92,6 +95,7 @@ export class TestRunnerComponent implements OnInit {
     }
     this.activeQuestions = this.pendingAttempt.questions;
     this.answers = this.pendingAttempt.answers;
+    this.instantFeedback = this.pendingAttempt.instantFeedback ?? false;
     this.lastSaved = this.pendingAttempt.savedAt;
     this.pendingAttempt = undefined;
     this.result = undefined;
@@ -122,6 +126,7 @@ export class TestRunnerComponent implements OnInit {
       this.answers[q.id] = q.type === 'true-false' ? null : [];
     }
     this.lastSaved = undefined;
+    this.instantFeedback = false;
     this.result = undefined;
     this.phase = 'taking';
     window.scrollTo({ top: 0 });
@@ -130,6 +135,17 @@ export class TestRunnerComponent implements OnInit {
   setAnswer(questionId: string, value: AnswerValue): void {
     this.answers[questionId] = value;
     this.autoSave();
+  }
+
+  /** Toggle live grading; persist so it survives save/resume. */
+  setInstantFeedback(on: boolean): void {
+    this.instantFeedback = on;
+    this.autoSave();
+  }
+
+  /** Whether the current answer to `q` is correct (for live feedback). */
+  liveCorrect(q: Question): boolean {
+    return this.storage.isAnswerCorrect(q, this.answers[q.id]);
   }
 
   /** Persist the current in-progress attempt so it can be resumed later. */
@@ -142,6 +158,7 @@ export class TestRunnerComponent implements OnInit {
       testId: this.test.id,
       questions: this.activeQuestions,
       answers: this.answers,
+      instantFeedback: this.instantFeedback,
       savedAt,
     });
     this.lastSaved = savedAt;
@@ -162,6 +179,20 @@ export class TestRunnerComponent implements OnInit {
       return typeof a === 'boolean';
     }
     return Array.isArray(a) && a.length > 0;
+  }
+
+  /** Number of answered questions that are currently correct (for instant feedback). */
+  get liveCorrectCount(): number {
+    return this.activeQuestions.filter(
+      (q) => this.isAnswered(q) && this.liveCorrect(q)
+    ).length;
+  }
+
+  /** Percent correct among answered questions so far. */
+  get livePercent(): number {
+    return this.answeredCount
+      ? Math.round((this.liveCorrectCount / this.answeredCount) * 100)
+      : 0;
   }
 
   get allAnswered(): boolean {

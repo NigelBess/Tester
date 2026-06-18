@@ -15,6 +15,17 @@
           <mat-icon>cloud_off</mat-icon> Answers save automatically
         </span>
       </ng-template>
+      <span class="live-score" *ngIf="instantFeedback && answeredCount > 0">
+        <mat-icon>grade</mat-icon>
+        {{ liveCorrectCount }}/{{ answeredCount }} correct ({{ livePercent }}%)
+      </span>
+      <mat-slide-toggle
+        class="feedback-toggle"
+        [checked]="instantFeedback"
+        (change)="setInstantFeedback($event.checked)"
+      >
+        Instant feedback
+      </mat-slide-toggle>
       <button mat-stroked-button (click)="saveAndExit()">
         <mat-icon>save</mat-icon> Save &amp; exit
       </button>
@@ -55,6 +66,8 @@
         [index]="i"
         [answer]="answers[q.id]"
         [imageUrls]="imageUrls"
+        [instantFeedback]="instantFeedback"
+        [wasCorrect]="liveCorrect(q)"
         (answerChange)="setAnswer(q.id, $event)"
       ></app-question>
     </mat-card>

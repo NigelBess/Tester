@@ -77,6 +77,8 @@ export interface SavedAttempt {
   questions: Question[];
   /** questionId -> current answer. */
   answers: Record<string, AnswerValue>;
+  /** Whether the "instant feedback" toggle was on, so resume restores it. */
+  instantFeedback?: boolean;
   savedAt: number;
 }
 

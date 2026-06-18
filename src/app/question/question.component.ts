@@ -16,7 +16,12 @@ export class QuestionComponent {
 
   /** When true, the component is read-only and shows correct/chosen highlighting. */
   @Input() review = false;
-  /** Whether the answer was correct (only meaningful in review mode). */
+  /**
+   * When true, grade the answer live as it's picked — tint only the chosen
+   * option and show a result icon, without revealing the correct option.
+   */
+  @Input() instantFeedback = false;
+  /** Whether the answer is correct (meaningful in review or instant-feedback mode). */
   @Input() wasCorrect = false;
 
   /** Resolved image-name -> objectUrl map for this test. */
@@ -59,7 +64,20 @@ export class QuestionComponent {
     this.answerChange.emit(next);
   }
 
-  // --- Review-mode helpers ---
+  // --- Feedback helpers ---
+
+  /** True when this question has a usable answer (mirrors the runner's check). */
+  get answered(): boolean {
+    if (this.question.type === 'true-false') {
+      return typeof this.answer === 'boolean';
+    }
+    return Array.isArray(this.answer) && this.answer.length > 0;
+  }
+
+  /** True when live grading should be shown for this question right now. */
+  get showLive(): boolean {
+    return this.instantFeedback && this.answered;
+  }
 
   isOptionCorrect(optionId: string): boolean {
     if (this.question.type === 'true-false') {

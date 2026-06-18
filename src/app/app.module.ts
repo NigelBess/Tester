@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
@@ -36,6 +37,7 @@ import { QuestionComponent } from './question/question.component';
     MatCheckboxModule,
     MatIconModule,
     MatRadioModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,
   ],
