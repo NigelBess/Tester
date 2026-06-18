@@ -63,6 +63,20 @@ h1 {
   font-weight: 500;
 }
 
+.bottombar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 0;
+  background: #fafafa;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 .qcard {
   margin-bottom: 16px;
 

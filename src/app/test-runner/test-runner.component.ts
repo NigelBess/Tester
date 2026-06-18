@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AnswerValue,
@@ -38,6 +38,9 @@ export class TestRunnerComponent implements OnInit {
 
   /** When on, each answer is graded live as it's picked (without revealing the answer). */
   instantFeedback = false;
+
+  /** Whether the "jump to next unanswered" button is showing (next unanswered is off-screen). */
+  showJumpToNext = false;
 
   /** Resolved image-name -> objectUrl map for the loaded test. */
   imageUrls = new Map<string, string>();
@@ -101,6 +104,7 @@ export class TestRunnerComponent implements OnInit {
     this.result = undefined;
     this.phase = 'taking';
     window.scrollTo({ top: 0 });
+    setTimeout(() => this.updateJumpVisibility());
   }
 
   startFresh(): void {
@@ -130,11 +134,49 @@ export class TestRunnerComponent implements OnInit {
     this.result = undefined;
     this.phase = 'taking';
     window.scrollTo({ top: 0 });
+    setTimeout(() => this.updateJumpVisibility());
   }
 
   setAnswer(questionId: string, value: AnswerValue): void {
     this.answers[questionId] = value;
     this.autoSave();
+    // Answering changes which question is "next unanswered".
+    this.updateJumpVisibility();
+  }
+
+  // --- Jump to next unanswered ---
+
+  /** Index of the first unanswered question in the active order, or -1 if none. */
+  get nextUnansweredIndex(): number {
+    return this.activeQuestions.findIndex((q) => !this.isAnswered(q));
+  }
+
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  updateJumpVisibility(): void {
+    const idx = this.nextUnansweredIndex;
+    this.showJumpToNext =
+      this.phase === 'taking' && idx >= 0 && !this.isCardInView(idx);
+  }
+
+  private isCardInView(index: number): boolean {
+    const el = document.getElementById('qcard-' + index);
+    if (!el) {
+      return false;
+    }
+    const rect = el.getBoundingClientRect();
+    // Partially visible counts as "in view".
+    return rect.top < window.innerHeight && rect.bottom > 0;
+  }
+
+  jumpToNextUnanswered(): void {
+    const idx = this.nextUnansweredIndex;
+    if (idx < 0) {
+      return;
+    }
+    document
+      .getElementById('qcard-' + idx)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   /** Toggle live grading; persist so it survives save/resume. */

@@ -60,7 +60,11 @@
       Answered {{ answeredCount }} / {{ activeQuestions.length }}
     </p>
 
-    <mat-card class="qcard" *ngFor="let q of activeQuestions; let i = index">
+    <mat-card
+      class="qcard"
+      *ngFor="let q of activeQuestions; let i = index"
+      [id]="'qcard-' + i"
+    >
       <app-question
         [question]="q"
         [index]="i"
@@ -72,16 +76,22 @@
       ></app-question>
     </mat-card>
 
-    <div class="actions">
+    <div class="bottombar" *ngIf="showJumpToNext || allAnswered">
+      <button
+        mat-stroked-button
+        *ngIf="showJumpToNext"
+        (click)="jumpToNextUnanswered()"
+      >
+        <mat-icon>arrow_downward</mat-icon> Next unanswered
+      </button>
       <button
         mat-raised-button
         color="primary"
-        [disabled]="!allAnswered"
+        *ngIf="allAnswered"
         (click)="submit()"
       >
         Submit test
       </button>
-      <span class="hint" *ngIf="!allAnswered">Answer all questions to submit.</span>
     </div>
   </ng-container>
 
