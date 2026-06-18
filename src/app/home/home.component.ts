@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { StoredTest } from '../models/test.model';
 import { TestStorageService } from '../services/test-storage.service';
 import { ImageStoreService } from '../services/image-store.service';
+import { AcellioService, ACELLIO_EXT } from '../services/acellio.service';
 
 interface TestRow {
   test: StoredTest;
@@ -29,6 +30,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private storage: TestStorageService,
     private images: ImageStoreService,
+    private acellio: AcellioService,
     private snack: MatSnackBar
   ) {}
 
@@ -88,9 +90,19 @@ export class HomeComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    input.value = ''; // Reset so selecting the same file again re-triggers change.
     if (!file) {
       return;
     }
+    if (file.name.toLowerCase().endsWith(ACELLIO_EXT)) {
+      void this.importAcellio(file);
+    } else {
+      this.importJson(file);
+    }
+  }
+
+  /** Import a plain `.json` test file (images uploaded separately). */
+  private importJson(file: File): void {
     const reader = new FileReader();
     reader.onload = () => {
       try {
@@ -105,8 +117,53 @@ export class HomeComponent implements OnInit {
       }
     };
     reader.readAsText(file);
-    // Reset so selecting the same file again re-triggers change.
-    input.value = '';
+  }
+
+  /** Import a bundled `.acellio` file: unpack the test JSON + images in one step. */
+  private async importAcellio(file: File): Promise<void> {
+    try {
+      const { json, images } = await this.acellio.unpack(file);
+      const test = this.storage.addTest(json);
+      const files = Array.from(images, ([name, blob]) => new File([blob], name));
+      if (files.length) {
+        await this.images.putImages(test.id, files);
+      }
+      this.snack.open(
+        `Imported "${test.title}" with ${files.length} image${files.length === 1 ? '' : 's'}.`,
+        'OK',
+        { duration: 3000 }
+      );
+      this.refresh();
+    } catch (e: any) {
+      this.snack.open(`Import failed: ${e.message}`, 'Dismiss', {
+        duration: 8000,
+        panelClass: 'snack-error',
+      });
+    }
+  }
+
+  /** Bundle a test + its uploaded images into a `.acellio` file and download it. */
+  async exportTest(row: TestRow): Promise<void> {
+    try {
+      const images = await this.images.getImages(row.test.id);
+      const blob = await this.acellio.pack(row.test, images);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = this.sanitizeFilename(row.test.title) + ACELLIO_EXT;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      this.snack.open(`Export failed: ${e.message}`, 'Dismiss', {
+        duration: 8000,
+        panelClass: 'snack-error',
+      });
+    }
+  }
+
+  private sanitizeFilename(name: string): string {
+    const cleaned = name.replace(/[\\/:*?"<>|]/g, '_').trim();
+    return cleaned || 'test';
   }
 
   async onImagesSelected(event: Event, row: TestRow): Promise<void> {

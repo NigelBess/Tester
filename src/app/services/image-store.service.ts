@@ -76,6 +76,29 @@ export class ImageStoreService {
     });
   }
 
+  /** All images stored for a test, as a name -> Blob map (for bundling/export). */
+  async getImages(testId: string): Promise<Map<string, Blob>> {
+    const store = await this.tx('readonly');
+    const prefix = `${testId}::`;
+    return new Promise<Map<string, Blob>>((resolve, reject) => {
+      const map = new Map<string, Blob>();
+      const req = store.openCursor();
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (!cursor) {
+          resolve(map);
+          return;
+        }
+        const key = String(cursor.key);
+        if (key.startsWith(prefix)) {
+          map.set(key.slice(prefix.length), cursor.value as Blob);
+        }
+        cursor.continue();
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
   /**
    * Build object URLs for the requested names that actually exist in the store.
    * Returns a name -> objectUrl map so components can render synchronously.
