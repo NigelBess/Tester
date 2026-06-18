@@ -3,10 +3,45 @@
     <button mat-button (click)="goHome()">
       <mat-icon>arrow_back</mat-icon> Your tests
     </button>
+
+    <div class="topbar-save" *ngIf="phase === 'taking'">
+      <span class="save-status" *ngIf="lastSaved; else unsaved">
+        <mat-icon>cloud_done</mat-icon>
+        Saved {{ answeredCount }}/{{ activeQuestions.length }} ·
+        {{ lastSaved | date: 'shortTime' }}
+      </span>
+      <ng-template #unsaved>
+        <span class="save-status muted">
+          <mat-icon>cloud_off</mat-icon> Answers save automatically
+        </span>
+      </ng-template>
+      <button mat-stroked-button (click)="saveAndExit()">
+        <mat-icon>save</mat-icon> Save &amp; exit
+      </button>
+    </div>
   </div>
 
   <h1>{{ test?.title }}</h1>
   <p class="desc" *ngIf="test?.description">{{ test?.description }}</p>
+
+  <!-- RESUME PROMPT -->
+  <ng-container *ngIf="phase === 'resume-prompt'">
+    <mat-card class="resume-card">
+      <mat-icon>history</mat-icon>
+      <div class="resume-text">
+        <div class="resume-title">You have an in-progress attempt</div>
+        <div class="resume-detail" *ngIf="savedAt">
+          Saved {{ savedAt | date: 'medium' }}
+        </div>
+      </div>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="resumeAttempt()">
+          Resume
+        </button>
+        <button mat-stroked-button (click)="startFresh()">Start fresh</button>
+      </div>
+    </mat-card>
+  </ng-container>
 
   <!-- TAKING -->
   <ng-container *ngIf="phase === 'taking'">

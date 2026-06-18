@@ -5,7 +5,43 @@
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 8px;
+  padding: 8px 0;
+  background: #fafafa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.topbar-save {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2e7d32;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &.muted {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
 }
 
 h1 {
@@ -43,6 +79,33 @@ h1 {
   .hint {
     color: rgba(0, 0, 0, 0.5);
     font-size: 0.9rem;
+  }
+}
+
+.resume-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  flex-wrap: wrap;
+
+  > mat-icon {
+    color: #3f51b5;
+  }
+
+  .resume-text {
+    flex: 1 1 auto;
+  }
+  .resume-title {
+    font-weight: 600;
+  }
+  .resume-detail {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    margin: 0;
   }
 }
 

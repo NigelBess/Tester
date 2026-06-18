@@ -3,6 +3,7 @@ import {
   AnswerValue,
   Question,
   QuestionType,
+  SavedAttempt,
   StoredTest,
   TestFile,
   TestHistory,
@@ -19,6 +20,7 @@ function validateImageField(value: unknown, where: string): void {
 const TESTS_KEY = 'tester.tests';
 const STATS_KEY = 'tester.stats';
 const HISTORY_KEY = 'tester.history';
+const ATTEMPTS_KEY = 'tester.attempts';
 
 /** How many recent outcomes per question the rolling history keeps. */
 const HISTORY_WINDOW = 6;
@@ -71,6 +73,31 @@ export class TestStorageService {
     const allHistory = this.readJson<Record<string, TestHistory>>(HISTORY_KEY, {});
     delete allHistory[id];
     this.writeJson(HISTORY_KEY, allHistory);
+    this.clearAttempt(id);
+  }
+
+  // --- In-progress attempts (save & resume) ---
+
+  /** The saved in-progress full-test attempt for a test, if any. */
+  getAttempt(testId: string): SavedAttempt | undefined {
+    const all = this.readJson<Record<string, SavedAttempt>>(ATTEMPTS_KEY, {});
+    return all[testId];
+  }
+
+  /** Persist (or overwrite) the in-progress attempt for a test. */
+  saveAttempt(attempt: SavedAttempt): void {
+    const all = this.readJson<Record<string, SavedAttempt>>(ATTEMPTS_KEY, {});
+    all[attempt.testId] = attempt;
+    this.writeJson(ATTEMPTS_KEY, all);
+  }
+
+  /** Discard any saved in-progress attempt for a test. */
+  clearAttempt(testId: string): void {
+    const all = this.readJson<Record<string, SavedAttempt>>(ATTEMPTS_KEY, {});
+    if (all[testId]) {
+      delete all[testId];
+      this.writeJson(ATTEMPTS_KEY, all);
+    }
   }
 
   // --- Stats ---

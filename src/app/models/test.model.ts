@@ -70,6 +70,16 @@ export interface AttemptResult {
   percent: number;
 }
 
+/** A full-test attempt persisted mid-way so it can be resumed later. */
+export interface SavedAttempt {
+  testId: string;
+  /** The prepared (shuffled) questions for this attempt, frozen so resume keeps order. */
+  questions: Question[];
+  /** questionId -> current answer. */
+  answers: Record<string, AnswerValue>;
+  savedAt: number;
+}
+
 // --- Stats ---
 
 export interface QuestionStat {

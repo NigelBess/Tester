@@ -14,6 +14,8 @@ interface TestRow {
   imageNames: string[];
   /** How many of those are uploaded. */
   imagesUploaded: number;
+  /** Whether a saved in-progress full-test attempt exists. */
+  inProgress: boolean;
 }
 
 @Component({
@@ -79,6 +81,7 @@ export class HomeComponent implements OnInit {
       mostCorrect,
       imageNames: this.storage.referencedImageNames(test),
       imagesUploaded: 0,
+      inProgress: !!this.storage.getAttempt(test.id),
     };
   }
 

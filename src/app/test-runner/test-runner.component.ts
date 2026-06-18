@@ -5,6 +5,7 @@ import {
   AttemptResult,
   Question,
   QuestionResult,
+  SavedAttempt,
   StoredTest,
 } from '../models/test.model';
 import { TestStorageService } from '../services/test-storage.service';
@@ -20,13 +21,20 @@ export class TestRunnerComponent implements OnInit {
   test?: StoredTest;
   notFound = false;
 
-  phase: 'taking' | 'results' = 'taking';
+  phase: 'resume-prompt' | 'taking' | 'results' = 'taking';
 
   /** The subset of questions being asked in the current attempt. */
   activeQuestions: Question[] = [];
   answers: Record<string, AnswerValue> = {};
 
   result?: AttemptResult;
+
+  /** A saved in-progress attempt awaiting the user's resume/start-fresh choice. */
+  private pendingAttempt?: SavedAttempt;
+  /** When the pending attempt was last saved (for the resume prompt). */
+  savedAt?: number;
+  /** When the current attempt was last auto-saved (drives the "Saved" indicator). */
+  lastSaved?: number;
 
   /** Resolved image-name -> objectUrl map for the loaded test. */
   imageUrls = new Map<string, string>();
@@ -51,6 +59,52 @@ export class TestRunnerComponent implements OnInit {
         .resolveUrls(this.test.id, names)
         .then((map) => (this.imageUrls = map));
     }
+
+    // Offer to resume a saved attempt if one exists and still matches this test.
+    const saved = this.storage.getAttempt(this.test.id);
+    if (saved && this.attemptMatchesTest(saved, this.test)) {
+      this.pendingAttempt = saved;
+      this.savedAt = saved.savedAt;
+      this.phase = 'resume-prompt';
+      return;
+    }
+    this.startAttempt(this.test.questions);
+  }
+
+  /** A saved attempt is usable only if its questions still match the test. */
+  private attemptMatchesTest(saved: SavedAttempt, test: StoredTest): boolean {
+    const savedIds = new Set(saved.questions.map((q) => q.id));
+    const testIds = new Set(test.questions.map((q) => q.id));
+    if (savedIds.size !== testIds.size) {
+      return false;
+    }
+    for (const id of testIds) {
+      if (!savedIds.has(id)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  resumeAttempt(): void {
+    if (!this.pendingAttempt) {
+      return;
+    }
+    this.activeQuestions = this.pendingAttempt.questions;
+    this.answers = this.pendingAttempt.answers;
+    this.lastSaved = this.pendingAttempt.savedAt;
+    this.pendingAttempt = undefined;
+    this.result = undefined;
+    this.phase = 'taking';
+    window.scrollTo({ top: 0 });
+  }
+
+  startFresh(): void {
+    if (!this.test) {
+      return;
+    }
+    this.storage.clearAttempt(this.test.id);
+    this.pendingAttempt = undefined;
     this.startAttempt(this.test.questions);
   }
 
@@ -67,6 +121,7 @@ export class TestRunnerComponent implements OnInit {
     for (const q of this.activeQuestions) {
       this.answers[q.id] = q.type === 'true-false' ? null : [];
     }
+    this.lastSaved = undefined;
     this.result = undefined;
     this.phase = 'taking';
     window.scrollTo({ top: 0 });
@@ -74,6 +129,27 @@ export class TestRunnerComponent implements OnInit {
 
   setAnswer(questionId: string, value: AnswerValue): void {
     this.answers[questionId] = value;
+    this.autoSave();
+  }
+
+  /** Persist the current in-progress attempt so it can be resumed later. */
+  private autoSave(): void {
+    if (!this.test || this.phase !== 'taking') {
+      return;
+    }
+    const savedAt = Date.now();
+    this.storage.saveAttempt({
+      testId: this.test.id,
+      questions: this.activeQuestions,
+      answers: this.answers,
+      savedAt,
+    });
+    this.lastSaved = savedAt;
+  }
+
+  saveAndExit(): void {
+    this.autoSave();
+    this.goHome();
   }
 
   get answeredCount(): number {
@@ -111,6 +187,8 @@ export class TestRunnerComponent implements OnInit {
     const outcomes: Record<string, boolean> = {};
     results.forEach((r) => (outcomes[r.question.id] = r.correct));
     this.storage.recordResult(this.test.id, outcomes);
+    // The attempt is finished; the in-progress save is no longer needed.
+    this.storage.clearAttempt(this.test.id);
 
     this.result = {
       testId: this.test.id,

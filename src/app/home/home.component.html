@@ -30,6 +30,7 @@
         <mat-card-subtitle>
           {{ row.questionCount }} question{{ row.questionCount === 1 ? '' : 's' }}
           <span *ngIf="row.attempts > 0">· {{ row.attempts }} attempt{{ row.attempts === 1 ? '' : 's' }}</span>
+          <span class="in-progress" *ngIf="row.inProgress">· in progress</span>
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -83,8 +84,13 @@
       </mat-card-content>
 
       <mat-card-actions>
-        <a mat-raised-button color="primary" [routerLink]="['/test', row.test.id]">
-          <mat-icon>play_arrow</mat-icon> Take test
+        <a
+          mat-raised-button
+          color="primary"
+          [routerLink]="['/test', row.test.id]"
+        >
+          <mat-icon>{{ row.inProgress ? 'history' : 'play_arrow' }}</mat-icon>
+          {{ row.inProgress ? 'Resume' : 'Take test' }}
         </a>
         <a mat-stroked-button color="primary" [routerLink]="['/test', row.test.id, 'practice']">
           <mat-icon>all_inclusive</mat-icon> Practice
